@@ -1,6 +1,49 @@
-chrome-linux64/
-chrome-linux64.zip
+# Ambiente Python
 venv/
-__pycache__/
-*.log
+.env/
 *.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Cache do Jupyter (se usar)
+.ipynb_checkpoints/
+
+# Arquivos de testes
+htmlcov/
+.tox/
+.coverage
+.cache/
+
+# VSCode
+.vscode/
+
+# Arquivos de builds Python
+build/
+dist/
+*.egg-info/
+
+# Arquivos do sistema operacional
+~$
+
+# Jenkins ou CI/CD (se gerar algum lixo)
+*.jenkins
+
+# Outros (adiciona conforme seu projeto)
+bfg.jar
+
