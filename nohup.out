@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/home/smario122/dash/app.py", line 1, in <module>
+    import dash
+ModuleNotFoundError: No module named 'dash'
