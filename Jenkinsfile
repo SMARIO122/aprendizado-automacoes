@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        VENV_PATH = "${WORKSPACE}/venv"
-    }
-
     stages {
         stage('Preparar ambiente Python') {
             steps {
@@ -18,10 +14,11 @@ pipeline {
         stage('Criar venv e instalar dependências') {
             steps {
                 sh '''
-                    python3 -m venv venv || true
-                    . venv/bin/activate || true
+                    python3 -m venv venv
+                    . venv/bin/activate
                     pip install --upgrade pip
                     pip install -r requirements.txt
+                    pip install flake8
                 '''
             }
         }
@@ -30,7 +27,7 @@ pipeline {
             steps {
                 sh '''
                     chmod +x iniciar.sh
-                    . venv/bin/activate || true
+                    . venv/bin/activate
                     ./iniciar.sh
                 '''
             }
@@ -39,32 +36,38 @@ pipeline {
         stage('Rodar app.py') {
             steps {
                 sh '''
-                    . venv/bin/activate || true
-                    nohup python3 app.py > output.log 2>&1 &
+                    . venv/bin/activate
+                    nohup python3 app.py &
                 '''
             }
         }
 
+        stage('Aguardar app') {
+            steps {
+                echo '⏳ Esperando app ficar disponível na porta 8050...'
+                sh '''
+                    until curl -s http://127.0.0.1:8050; do
+                        echo "Aguardando app subir..."
+                        sleep 2
+                    done
+                '''
+            }
+        }
 
-stage('Aguardar app') {
-    steps {
-        echo '⏳ Esperando app ficar disponível na porta 8050...'
-        sh '''
-        for i in {1..10}; do
-            curl -s http://127.0.0.1:8050 && break
-            echo "Aguardando app subir..."
-            sleep 2
-        done
-        '''
-    }
-}
-
+        stage('Análise estática com flake8') {
+            steps {
+                sh '''
+                    . venv/bin/activate
+                    flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || true
+                '''
+            }
+        }
 
         stage('Rodar testes') {
             steps {
                 sh '''
-                    . venv/bin/activate || true
-                    pytest || true
+                    . venv/bin/activate
+                    pytest
                 '''
             }
         }
@@ -74,12 +77,11 @@ stage('Aguardar app') {
         always {
             echo '🔄 Pipeline finalizada.'
         }
-        failure {
-            echo '❌ Algo deu ruim na pipeline!'
-        }
         success {
             echo '✅ Tudo certo! Deploy/execução finalizada.'
         }
+        failure {
+            echo '❌ Algo deu errado na pipeline.'
+        }
     }
 }
-
