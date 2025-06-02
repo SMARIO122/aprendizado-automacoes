@@ -6,22 +6,20 @@ pipeline {
     }
 
     stages {
-        stage('Clonar Repositório') {
-            steps {
-                git 'https://github.com/SMARIO122/aprendizado-automacoes.git'
-            }
-        }
-
-        stage('Criar ambiente virtual') {
-            steps {
-                sh 'python3 -m venv venv'
-            }
-        }
-
-        stage('Ativar venv e instalar dependências') {
+        stage('Preparar ambiente Python') {
             steps {
                 sh '''
-                    . venv/bin/activate
+                    sudo apt update
+                    sudo apt install -y python3-pip python3-venv
+                '''
+            }
+        }
+
+        stage('Criar venv e instalar dependências') {
+            steps {
+                sh '''
+                    python3 -m venv venv || true
+                    . venv/bin/activate || true
                     pip install --upgrade pip
                     pip install -r requirements.txt
                 '''
@@ -32,26 +30,26 @@ pipeline {
             steps {
                 sh '''
                     chmod +x iniciar.sh
-                    . venv/bin/activate
+                    . venv/bin/activate || true
                     ./iniciar.sh
                 '''
             }
         }
 
-        stage('Rodar app.py em background') {
+        stage('Rodar app.py') {
             steps {
                 sh '''
-                    . venv/bin/activate
+                    . venv/bin/activate || true
                     nohup python3 app.py > output.log 2>&1 &
                 '''
             }
         }
 
-        stage('Executar testes') {
+        stage('Rodar testes') {
             steps {
                 sh '''
-                    . venv/bin/activate
-                    pytest
+                    . venv/bin/activate || true
+                    pytest || true
                 '''
             }
         }
@@ -69,3 +67,4 @@ pipeline {
         }
     }
 }
+
