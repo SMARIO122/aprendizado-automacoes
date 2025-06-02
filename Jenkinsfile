@@ -5,15 +5,15 @@ pipeline {
         VENV_PATH = "${WORKSPACE}/venv"
     }
 
-    stage('Preparar ambiente Python') {
-    steps {
-        sh '''
-            apt update || true
-            apt install -y python3-pip python3-venv || true
-        '''
-    }
-}
-
+    stages {
+        stage('Preparar ambiente Python') {
+            steps {
+                sh '''
+                    apt update || true
+                    apt install -y python3-pip python3-venv || true
+                '''
+            }
+        }
 
         stage('Criar venv e instalar dependências') {
             steps {
