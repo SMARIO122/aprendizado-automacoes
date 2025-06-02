@@ -45,6 +45,21 @@ pipeline {
             }
         }
 
+
+stage('Aguardar app') {
+    steps {
+        echo '⏳ Esperando app ficar disponível na porta 8050...'
+        sh '''
+        for i in {1..10}; do
+            curl -s http://127.0.0.1:8050 && break
+            echo "Aguardando app subir..."
+            sleep 2
+        done
+        '''
+    }
+}
+
+
         stage('Rodar testes') {
             steps {
                 sh '''
